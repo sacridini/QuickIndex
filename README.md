@@ -1,9 +1,9 @@
 # QuickIndex
 
-Dependences are:
-Numpy
-Gdal
-Rasterio
+## Dependences are:
+- Numpy
+- Gdal
+- Rasterio
 
 ## Usage
 QuickIndex(indices = None, green = None, red = None, nir = None, swir = None)
