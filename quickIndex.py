@@ -1,7 +1,7 @@
 ################################# [ quickIndex.py ] ################################
 #	Author: Eduardo (sacridini) Lacerda
 #	e-mail: eduardolacerdageo@gmail.com
-#	Version: 0.1
+#	Version: 0.1.2
 #
 #	Calculate multispectral indices such as NDVI, SAVI, TVI, etc.
 #	Dependencies: numpy, gdal and rasterio
@@ -30,14 +30,14 @@ class QuickIndex(object):
 	# TVI - Transformed Vegetation Index
 	# sqrt((nir - red)/(nir + red) + 0.5)
 	def tvi(self, red, nir, kwargs):
-		tvi = np.sqrt(np.absolute(self.nir.astype(float) - self.red.astype(float)) / (self.nir + self.red) + 0.5)
+		tvi = np.sqrt((self.nir.astype(float) - self.red.astype(float)) / (self.nir + self.red) + 0.5)
 		with rasterio.open('tvi_specidx.tif', 'w', **kwargs) as dst_tvi:
 			dst_tvi.write_band(1, tvi.astype(rasterio.float32))
 				
 	# TTVI - Thiam's Transformed Vegetation Index
 	# sqrt(abs((nir - red)/(nir + red) + 0.5))
 	def ttvi(self, red, nir, kwargs):
-		ttvi = np.sqrt((self.nir.astype(float) - self.red.astype(float)) / (self.nir + self.red) + 0.5)
+		ttvi = np.sqrt(np.absolute((self.nir.astype(float) - self.red.astype(float)) / (self.nir + self.red) + 0.5))
 		with rasterio.open('ttvi_specidx.tif', 'w', **kwargs) as dst_ttvi:
 			dst_ttvi.write_band(1, ttvi.astype(rasterio.float32))
 	
@@ -209,4 +209,7 @@ class QuickIndex(object):
 			pass
 
 
-
+red_file = 'C:\\Users\\eduardo\\Documents\\LT05_L1TP_217076_20110813_20161007_01_T1_B3.TIF'
+nir_file = 'C:\\Users\\eduardo\\Documents\\LT05_L1TP_217076_20110813_20161007_01_T1_B4.TIF'
+idx = ["ndvi"]
+QuickIndex(idx, red = red_file, nir = nir_file)
