@@ -211,7 +211,7 @@ class QuickIndex(object):
 			pass
 
 
-red_file = '/home/eduardo/Documents/images/LT05_L1TP_217076_20110813_20161007_01_T1_B3.TIF'
-nir_file = '/home/eduardo/Documents/images/LT05_L1TP_217076_20110813_20161007_01_T1_B4.TIF'
-idx = ["msavi2"]
-QuickIndex(idx, red = red_file, nir = nir_file)
+# red_file = '/home/eduardo/Documents/images/LT05_L1TP_217076_20110813_20161007_01_T1_B3.TIF'
+# nir_file = '/home/eduardo/Documents/images/LT05_L1TP_217076_20110813_20161007_01_T1_B4.TIF'
+# idx = ["msavi2"]
+# QuickIndex(idx, red = red_file, nir = nir_file)
