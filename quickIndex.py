@@ -1,7 +1,7 @@
 ################################# [ quickIndex.py ] ################################
 #	Author: Eduardo (sacridini) Lacerda
 #	e-mail: eduardolacerdageo@gmail.com
-#	Version: 0.1.5
+#	Version: 0.1.6
 #
 #	Calculate multispectral indices such as NDVI, SAVI, TVI, etc.
 #	Dependencies: numpy, gdal and rasterio
@@ -105,6 +105,47 @@ class QuickIndex(object):
 		wdvi = self.nir.astype(float) - s * self.red.astype(float)
 		with rasterio.open('wdvi_specidx.tif', 'w', **kwargs) as dst_wdvi:
 			dst_wdvi.write_band(1, wdvi.astype(rasterio.float32))
+
+	# Green Normalised Difference Vegetation Index 
+	# (nir - green)/(nir + green)
+	def gndvi(self, green, nir, kwargs):
+		gndvi = (self.nir.astype(float) - self.green.astype(float)) / (self.nir + self.green)
+		with rasterio.open('gndvi_specidx.tif', 'w', **kwargs) as dst_gndvi:
+			dst_gndvi.write_band(1, gndvi.astype(rasterio.float32))
+
+	# Normalised Difference Water Index
+	# (green - nir)/(green + nir)
+	def ndwi(self, green, nir, kwargs):
+		ndwi = (self.green.astype(float) - self.nir.astype(float)) / (self.green + self.nir)
+		with rasterio.open('ndwi_specidx.tif', 'w', **kwargs) as dst_ndwi:
+			dst_ndwi.write_band(1, ndwi.astype(rasterio.float32))
+
+	# Normalised Difference Water Index 2
+	# (nir - swir2)/(nir + swir2)
+	def ndwi2(self, nir, swir, kwargs):
+		ndwi2 = (self.nir.astype(float) - self.swir.astype(float)) / (self.nir + self.swir)
+		with rasterio.open('ndwi2_specidx.tif', 'w', **kwargs) as dst_ndwi2:
+			dst_ndwi2.write_band(1, ndwi2.astype(rasterio.float32))
+
+	# Modified Normalised Difference Water Index 
+	# (green - swir2)/(green + swir2)
+	def mndwi(self, green, swir, kwargs):
+		mndwi = (self.green.astype(float) - self.swir.astype(float)) / (self.green + self.swir)
+		with rasterio.open('mndwi_specidx.tif', 'w', **kwargs) as dst_mndwi:
+			dst_mndwi.write_band(1, mndwi.astype(rasterio.float32))
+
+	# Corrected Normalised Difference Vegetation Index
+	# (nir - red)/(nir + red) * (1 - ((swir2 - swir2ccc)/(swir2coc - swir2ccc)))
+	def ndvic(self, red, nir, swir, kwargs):
+		pass
+
+	# Specific Leaf Area Vegetation Index
+	# nir/(red + swir2) 
+	def slavi(self, red, nir, swir, kwargs):
+		slavi = self.nir.astype(float) / (self.red.astype(float) + self.swir.astype(float))
+		with rasterio.open('slavi_specidx.tif', 'w', **kwargs) as dst_slavi:
+			dst_slavi.write_band(1, slavi.astype(rasterio.float32))
+
 
 	# Create all indices that use the RED and the NIR bands
 	def genAllRedNir(self, red, nir, kwargs):
