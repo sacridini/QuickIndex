@@ -1,7 +1,7 @@
 ################################# [ quickIndex.py ] ################################
 #	Author: Eduardo (sacridini) Lacerda
 #	e-mail: eduardolacerdageo@gmail.com
-#	Version: 0.1.4
+#	Version: 0.1.5
 #
 #	Calculate multispectral indices such as NDVI, SAVI, TVI, etc.
 #	Dependencies: numpy, gdal and rasterio
@@ -75,28 +75,36 @@ class QuickIndex(object):
 		msavi2 = (2 * (self.nir.astype(float) + 1) - np.sqrt((2 * self.nir.astype(float) + 1)**2 - 8 * (self.nir.astype(float) - self.red.astype(float))))/2
 		with rasterio.open('msavi2_specidx.tif', 'w', **kwargs) as dst_msavi2:
 			dst_msavi2.write_band(1, msavi2.astype(rasterio.float32))	
-
 	# Global Environmental Monitoring Index
 	# (((nir^2 - red^2) * 2 + (nir * 1.5) + (red * 0.5))/(nir + red + 0.5)) * (1 - ((((nir^2 - red^2) * 2 + (nir * 1.5) + (red * 0.5))/(nir + red + 0.5)) * 0.25)) - ((red - 0.125)/(1 - red))
-	def gemi(self):
-		gemi = (((self.nir.astype(float)**2 - self.red.astype(float)**2) * 2 + (nir * 1.5) + (red * 0.5))/(nir + red + 0.5)) * (1 - ((((nir**2 - red**2) * 2 + (nir * 1.5) + (red * 0.5))/(nir + red + 0.5)) * 0.25)) - ((red - 0.125)/(1 - red))
+	def gemi(self, red, nir, kwargs):
+		gemi = (((self.nir.astype(float)**2 - self.red.astype(float)**2) * 2 + (self.nir * 1.5) + (self.red * 0.5))/(self.nir + self.red + 0.5)) * (1 - ((((self.nir**2 - self.red**2) * 2 + (self.nir * 1.5) + (self.red * 0.5))/(self.nir + self.red + 0.5)) * 0.25)) - ((self.red - 0.125)/(1 - self.red))
 		with rasterio.open('gemi_specidx.tif', 'w', **kwargs) as dst_gemi:
 			dst_gemi.write_band(1, gemi.astype(rasterio.float32))
 
 	# Corrected Transformed Vegetation Index
 	# (NDVI + 0.5)/sqrt(abs(NDVI + 0.5))
-	def ctvi(self):
-		pass # TODO
+	def ctvi(self, red, nir, kwargs):
+		ndvi = (self.nir.astype(float) - self.red.astype(float)) / (self.nir + self.red)
+		ctvi = (ndvi + 0.5) / np.sqrt(np.absolute(ndvi + 0.5))
+		with rasterio.open('ctvi_specidx.tif', 'w', **kwargs) as dst_ctvi:
+			dst_ctvi.write_band(1, ctvi.astype(rasterio.float32))		
 
 	# Difference Vegetation Index
 	# s * nir - red
-	def dvi(self):
-		pass # TODO
+	def dvi(self, red, nir, kwargs):
+		s = self.nir.astype(float) / self.red.astype(float)
+		dvi = s * self.nir.astype(float) - self.red.astype(float)
+		with rasterio.open('dvi_specidx.tif', 'w', **kwargs) as dst_dvi:
+			dst_dvi.write_band(1, dvi.astype(rasterio.float32))		
 
 	# Weighted Difference Vegetation Index
 	# nir - s * red
-	def wdvi(self):
-		pass # TODO
+	def wdvi(self, red, nir, kwargs):
+		s = self.nir.astype(float) / self.red.astype(float)
+		wdvi = self.nir.astype(float) - s * self.red.astype(float)
+		with rasterio.open('wdvi_specidx.tif', 'w', **kwargs) as dst_wdvi:
+			dst_wdvi.write_band(1, wdvi.astype(rasterio.float32))
 
 	# Create all indices that use the RED and the NIR bands
 	def genAllRedNir(self, red, nir, kwargs):
@@ -104,14 +112,14 @@ class QuickIndex(object):
 		self.msavi(self.red, self.nir, self.kwargs)
 		self.msavi2(self.red, self.nir, self.kwargs)
 		self.gemi(self.red, self.nir, self.kwargs)
-		# self.ctvi(self.red, self.nir, self.kwargs)
+		self.ctvi(self.red, self.nir, self.kwargs)
 		self.sr(self.red, self.nir, self.kwargs)
-		# self.dvi(self.red, self.nir, self.kwargs)
+		self.dvi(self.red, self.nir, self.kwargs)
 		self.rvi(self.red, self.nir, self.kwargs)
 		self.tvi(self.red, self.nir, self.kwargs)
 		self.ttvi(self.red, self.nir, self.kwargs)
 		self.nrvi(self.red, self.nir, self.kwargs)
-		# self.wdvi(self.red, self.nir, self.kwargs)		
+		self.wdvi(self.red, self.nir, self.kwargs)		
 
 
 	def __init__(self, indices = None, green = None, red = None, nir = None, swir = None):
@@ -159,7 +167,7 @@ class QuickIndex(object):
 			with rasterio.open(red) as src_red:
 				self.red = src_red.read(1)
 			with rasterio.open(nir) as src_nir:
-				self.nir = src_nir.read(1)
+					self.nir = src_nir.read(1)
 			self.kwargs = src_red.meta
 			self.kwargs.update(
 	    		dtype=rasterio.float32,
@@ -213,7 +221,7 @@ class QuickIndex(object):
 			pass
 
 
-# red_file = '/home/eduardo/Documents/images/LT05_L1TP_217076_20110813_20161007_01_T1_B3.TIF'
-# nir_file = '/home/eduardo/Documents/images/LT05_L1TP_217076_20110813_20161007_01_T1_B4.TIF'
-# idx = ["msavi2"]
-# QuickIndex(idx, red = red_file, nir = nir_file)
+red_file = '/home/eduardo/Documents/images/LT05_L1TP_217076_20110813_20161007_01_T1_B3.TIF'
+nir_file = '/home/eduardo/Documents/images/LT05_L1TP_217076_20110813_20161007_01_T1_B4.TIF'
+idx = ["gemi"]
+QuickIndex(idx, red = red_file, nir = nir_file)
