@@ -1,7 +1,7 @@
 ################################# [ quickIndex.py ] ################################
 #	Author: Eduardo (sacridini) Lacerda
 #	e-mail: eduardolacerdageo@gmail.com
-#	Version: 0.1.3
+#	Version: 0.1.4
 #
 #	Calculate multispectral indices such as NDVI, SAVI, TVI, etc.
 #	Dependencies: numpy, gdal and rasterio
@@ -79,7 +79,9 @@ class QuickIndex(object):
 	# Global Environmental Monitoring Index
 	# (((nir^2 - red^2) * 2 + (nir * 1.5) + (red * 0.5))/(nir + red + 0.5)) * (1 - ((((nir^2 - red^2) * 2 + (nir * 1.5) + (red * 0.5))/(nir + red + 0.5)) * 0.25)) - ((red - 0.125)/(1 - red))
 	def gemi(self):
-		pass # TODO
+		gemi = (((self.nir.astype(float)**2 - self.red.astype(float)**2) * 2 + (nir * 1.5) + (red * 0.5))/(nir + red + 0.5)) * (1 - ((((nir**2 - red**2) * 2 + (nir * 1.5) + (red * 0.5))/(nir + red + 0.5)) * 0.25)) - ((red - 0.125)/(1 - red))
+		with rasterio.open('gemi_specidx.tif', 'w', **kwargs) as dst_gemi:
+			dst_gemi.write_band(1, gemi.astype(rasterio.float32))
 
 	# Corrected Transformed Vegetation Index
 	# (NDVI + 0.5)/sqrt(abs(NDVI + 0.5))
@@ -101,7 +103,7 @@ class QuickIndex(object):
 		self.savi(self.red, self.nir, self.kwargs)
 		self.msavi(self.red, self.nir, self.kwargs)
 		self.msavi2(self.red, self.nir, self.kwargs)
-		# self.gemi(self.red, self.nir, self.kwargs)
+		self.gemi(self.red, self.nir, self.kwargs)
 		# self.ctvi(self.red, self.nir, self.kwargs)
 		self.sr(self.red, self.nir, self.kwargs)
 		# self.dvi(self.red, self.nir, self.kwargs)
@@ -192,7 +194,7 @@ class QuickIndex(object):
 					elif idx == 'dvi':
 						self.msavi2(self.red, self.nir, self.kwargs)
 					elif idx == 'wdvi':
-						self.msavi2(self.red, self.nir, self.kwargs)
+						self.msavi2(self.red, self.nir, self.kwargs)	
 					elif idx == 'ctvi':
 						self.msavi2(self.red, self.nir, self.kwargs)																		
 					else:
