@@ -180,8 +180,8 @@ class QuickIndex(object):
 		self.ndwi2(self.nir, self.swir, self.kwargs)
 
 	# Create all indices that use the GREEN, RED, NIR and the SWIR bands
-	def genAllGreenRedNirSwir(self, green, red, nir, swir):
-		pass
+	# def genAllGreenRedNirSwir(self, green, red, nir, swir):
+	# 	pass
 
 	def __init__(self, indices = None, green = None, red = None, nir = None, swir = None):
 		
@@ -205,7 +205,12 @@ class QuickIndex(object):
 	    		count = 1)
 
 	    	if indices == None:
-
+	    		self.getAllRedNir(self.red, self.nir, self.kwargs)
+				self.getAllRedNirSwir(self.red, self.nir, self.swir, self.kwargs)
+				self.genAllGreenNir(self.green, self.nir, self.kwargs)
+				self.genAllGreenSwir(self.green, self.swir, self.kwargs)
+			else:
+				print "Error"
 
 		elif red is not None and nir is not None and swir is not None:
 			with rasterio.open(red_filepath) as src_red:
