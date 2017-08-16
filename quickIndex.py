@@ -1,7 +1,7 @@
 ################################# [ quickIndex.py ] ################################
 #	Author: Eduardo (sacridini) Lacerda
 #	e-mail: eduardolacerdageo@gmail.com
-#	Version: 0.1.2
+#	Version: 0.1.3
 #
 #	Calculate multispectral indices such as NDVI, SAVI, TVI, etc.
 #	Dependencies: numpy, gdal and rasterio
@@ -65,14 +65,16 @@ class QuickIndex(object):
 	# MSAVI - Modified Soil Adjusted Vegetation Index
 	# nir + 0.5 - (0.5 * sqrt((2 * nir + 1)^2 - 8 * (nir - (2 * red))))
 	def msavi(self, red, nir, kwargs):
-		msavi = self.nir.astype(float) + 0.5 - (0.5 * np.sqrt((2 * self.nir.astype(float) + 1)**2 - 8 * (nir - (2 * self.red.astype(float)))))
+		msavi = self.nir.astype(float) + 0.5 - (0.5 * np.sqrt((2 * self.nir.astype(float) + 1)**2 - 8 * (self.nir.astype(float) - (2 * self.red.astype(float)))))
 		with rasterio.open('msavi_specidx.tif', 'w', **kwargs) as dst_msavi:
 			dst_msavi.write_band(1, msavi.astype(rasterio.float32))		
 
 	# Modified Soil Adjusted Vegetation Index 2
 	# (2 * (nir + 1) - sqrt((2 * nir + 1)^2 - 8 * (nir - red)))/2
-	def msavi2(self):
-		pass # TODO	
+	def msavi2(self, red, nir, kwargs):
+		msavi2 = (2 * (self.nir.astype(float) + 1) - np.sqrt((2 * self.nir.astype(float) + 1)**2 - 8 * (self.nir.astype(float) - self.red.astype(float))))/2
+		with rasterio.open('msavi2_specidx.tif', 'w', **kwargs) as dst_msavi2:
+			dst_msavi2.write_band(1, msavi2.astype(rasterio.float32))	
 
 	# Global Environmental Monitoring Index
 	# (((nir^2 - red^2) * 2 + (nir * 1.5) + (red * 0.5))/(nir + red + 0.5)) * (1 - ((((nir^2 - red^2) * 2 + (nir * 1.5) + (red * 0.5))/(nir + red + 0.5)) * 0.25)) - ((red - 0.125)/(1 - red))
@@ -98,7 +100,7 @@ class QuickIndex(object):
 	def genAllRedNir(self, red, nir, kwargs):
 		self.savi(self.red, self.nir, self.kwargs)
 		self.msavi(self.red, self.nir, self.kwargs)
-		# self.msavi2(self.red, self.nir, self.kwargs)
+		self.msavi2(self.red, self.nir, self.kwargs)
 		# self.gemi(self.red, self.nir, self.kwargs)
 		# self.ctvi(self.red, self.nir, self.kwargs)
 		self.sr(self.red, self.nir, self.kwargs)
@@ -209,7 +211,7 @@ class QuickIndex(object):
 			pass
 
 
-red_file = 'C:\\Users\\eduardo\\Documents\\LT05_L1TP_217076_20110813_20161007_01_T1_B3.TIF'
-nir_file = 'C:\\Users\\eduardo\\Documents\\LT05_L1TP_217076_20110813_20161007_01_T1_B4.TIF'
-idx = ["ndvi"]
+red_file = '/home/eduardo/Documents/images/LT05_L1TP_217076_20110813_20161007_01_T1_B3.TIF'
+nir_file = '/home/eduardo/Documents/images/LT05_L1TP_217076_20110813_20161007_01_T1_B4.TIF'
+idx = ["msavi2"]
 QuickIndex(idx, red = red_file, nir = nir_file)
