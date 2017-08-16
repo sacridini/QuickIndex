@@ -1,7 +1,7 @@
 ################################# [ quickIndex.py ] ################################
 #	Author: Eduardo (sacridini) Lacerda
 #	e-mail: eduardolacerdageo@gmail.com
-#	Version: 0.1.6
+#	Version: 0.1.7
 #
 #	Calculate multispectral indices such as NDVI, SAVI, TVI, etc.
 #	Dependencies: numpy, gdal and rasterio
@@ -162,6 +162,39 @@ class QuickIndex(object):
 		self.nrvi(self.red, self.nir, self.kwargs)
 		self.wdvi(self.red, self.nir, self.kwargs)		
 
+	# Create all indices that use the GREEN and the NIR bands
+	def genAllGreenNir(self, green, nir, kwargs):
+		self.gndvi(self.green, self.nir, self.kwargs)
+		self.ndwi(self.green, self.nir, self.kwargs)
+	
+	# Create all indices that use the GREEN and the SWIR bands
+	def genAllGreenSwir(self, green. swir, kwargs):
+		self.mndwi(self.green, self.swir, self.kwargs)
+
+	# Create all indices that use the RED, NIR and the SWIR bands
+	def getAllRedNirSwir(self, red, nir, swir, kwargs):
+		self.savi(self.red, self.nir, self.kwargs)
+		self.msavi(self.red, self.nir, self.kwargs)
+		self.msavi2(self.red, self.nir, self.kwargs)
+		self.gemi(self.red, self.nir, self.kwargs)
+		self.ctvi(self.red, self.nir, self.kwargs)
+		self.sr(self.red, self.nir, self.kwargs)
+		self.dvi(self.red, self.nir, self.kwargs)
+		self.rvi(self.red, self.nir, self.kwargs)
+		self.tvi(self.red, self.nir, self.kwargs)
+		self.ttvi(self.red, self.nir, self.kwargs)
+		self.nrvi(self.red, self.nir, self.kwargs)
+		self.wdvi(self.red, self.nir, self.kwargs)	
+		# +
+		self.slavi(self.red, self.nir, self.swir, self.kwargs)
+
+	# Create all indices that use the NIR and the SWIR bands
+	def genAllNirSwir(self, nir, swir, kwargs):
+		self.ndwi2(self.nir, self.swir, self.kwargs)
+
+	# Create all indices that use the GREEN, RED, NIR and the SWIR bands
+	def genAllGreenRedNirSwir(self, green, red, nir, swir):
+		pass
 
 	def __init__(self, indices = None, green = None, red = None, nir = None, swir = None):
 		
@@ -172,37 +205,89 @@ class QuickIndex(object):
 
 		if green is not None and red is not None and nir is not None and swir is not None:
 		 	with rasterio.open(green_filepath) as src_green:
-				green = src_green.read(1)
+				self.green = src_green.read(1)
 			with rasterio.open(red_filepath) as src_red:
-				red = src_red.read(1)
+				self.red = src_red.read(1)
 			with rasterio.open(nir_filepath) as src_nir:
-				nir = src_nir.read(1)
+				self.nir = src_nir.read(1)
 			with rasterio.open(swir_filepath) as src_swir:
-				swir = src_swir.read(1)
-				# TODO 
+				self.swir = src_swir.read(1)
+			self.kwargs = src_red.meta
+			self.kwargs.update(
+	    		dtype=rasterio.float32,
+	    		count = 1)
+
+	    	if indices == None:
+
 
 		elif red is not None and nir is not None and swir is not None:
 			with rasterio.open(red_filepath) as src_red:
-				red = src_red.read(1)
+				self.red = src_red.read(1)
 			with rasterio.open(nir_filepath) as src_nir:
-				nir = src_nir.read(1)
+				self.nir = src_nir.read(1)
 			with rasterio.open(swir_filepath) as src_swir:
-				swir = src_swir.read(1)
-				# TODO 
+				self.swir = src_swir.read(1)
+			self.kwargs = src_red.meta
+			self.kwargs.update(
+	    		dtype=rasterio.float32,
+	    		count = 1)		
+
+			# Check if any specific index was requested
+			# otherwise, it will generate all possible indexes
+			if indices == None:
+				self.getAllRedNirSwir(self.red, self.nir, self.swir, self.kwargs)
+			else:
+				for idx in indices:
+					if idx == 'slavi':
+						self.slavi(self.red, self.nir, self.swir, self.kwargs)
+					else:
+						print "Error: Index [" + idx + "] doesnt exist"
 
 		elif green is not None and nir is not None:
 			with rasterio.open(green_filepath) as src_green:
-				green = src_green.read(1)
+				self.green = src_green.read(1)
 			with rasterio.open(nir_filepath) as src_nir:
-				nir = src_nir.read(1)
-				# TODO 
+				self.nir = src_nir.read(1)
+			self.kwargs = src_green.meta
+			self.kwargs.update(
+	    		dtype=rasterio.float32,
+	    		count = 1)
+
+			# Check if any specific index was requested
+			# otherwise, it will generate all possible indexes
+			if indices == None:
+				self.genAllGreenNir(self.green, self.nir, self.kwargs)
+			else:
+				for idx in indices:
+					if idx == 'gndvi':
+						self.gndvi(self.green, self.nir, self.kwargs)
+					elif idx == 'ndwi':
+						self.ndwi(self.green, self.nir, self.kwargs)
+					else:
+						print "Error: Index [" + idx + "] doesnt exist"
+
 
 		elif green is not None and swir is not None:
 			with rasterio.open(green_filepath) as src_green:
-				green = src_green.read(1)
+				self.green = src_green.read(1)
 			with rasterio.open(swir_filepath) as src_swir:
-				swir = src_swir.read(1)
-				# TODO 
+				self.swir = src_swir.read(1)
+			self.kwargs = src_green.meta
+			self.kwargs.update(
+	    		dtype=rasterio.float32,
+	    		count = 1)
+
+			# Check if any specific index was requested
+			# otherwise, it will generate all possible indexes			
+			if indices == None:
+				self.genAllGreenSwir(self.green, self.swir, self.kwargs)
+			else:
+				for idx in indices:
+					if idx == 'mndwi':
+						self.mndwi(self.green, self.swir, self.kwargs)
+					else:
+						print "Error: Index [" + idx + "] doesnt exist"
+
 
 		elif red is not None and nir is not None:
 			with rasterio.open(red) as src_red:
