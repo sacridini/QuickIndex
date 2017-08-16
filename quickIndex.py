@@ -173,19 +173,6 @@ class QuickIndex(object):
 
 	# Create all indices that use the RED, NIR and the SWIR bands
 	def getAllRedNirSwir(self, red, nir, swir, kwargs):
-		self.savi(self.red, self.nir, self.kwargs)
-		self.msavi(self.red, self.nir, self.kwargs)
-		self.msavi2(self.red, self.nir, self.kwargs)
-		self.gemi(self.red, self.nir, self.kwargs)
-		self.ctvi(self.red, self.nir, self.kwargs)
-		self.sr(self.red, self.nir, self.kwargs)
-		self.dvi(self.red, self.nir, self.kwargs)
-		self.rvi(self.red, self.nir, self.kwargs)
-		self.tvi(self.red, self.nir, self.kwargs)
-		self.ttvi(self.red, self.nir, self.kwargs)
-		self.nrvi(self.red, self.nir, self.kwargs)
-		self.wdvi(self.red, self.nir, self.kwargs)	
-		# +
 		self.slavi(self.red, self.nir, self.swir, self.kwargs)
 
 	# Create all indices that use the NIR and the SWIR bands
@@ -235,6 +222,7 @@ class QuickIndex(object):
 			# Check if any specific index was requested
 			# otherwise, it will generate all possible indexes
 			if indices == None:
+				self.getAllRedNir(self.red, self.nir, self.kwargs)
 				self.getAllRedNirSwir(self.red, self.nir, self.swir, self.kwargs)
 			else:
 				for idx in indices:
