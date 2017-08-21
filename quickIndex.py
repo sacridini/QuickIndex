@@ -1,7 +1,7 @@
 ################################# [ quickIndex.py ] ################################
 #	Author: Eduardo (sacridini) Lacerda
 #	e-mail: eduardolacerdageo@gmail.com
-#	Version: 0.1.7
+#	Version: 0.1.7.1
 #
 #	Calculate multispectral indices such as NDVI, SAVI, TVI, etc.
 #	Dependencies: numpy, gdal and rasterio
@@ -97,7 +97,7 @@ class QuickIndex(object):
 		dvi = s * self.nir.astype(float) - self.red.astype(float)
 		with rasterio.open('dvi_specidx.tif', 'w', **kwargs) as dst_dvi:
 			dst_dvi.write_band(1, dvi.astype(rasterio.float32))		
-
+	 
 	# Weighted Difference Vegetation Index
 	# nir - s * red
 	def wdvi(self, red, nir, kwargs):
@@ -168,7 +168,7 @@ class QuickIndex(object):
 		self.ndwi(self.green, self.nir, self.kwargs)
 	
 	# Create all indices that use the GREEN and the SWIR bands
-	def genAllGreenSwir(self, green. swir, kwargs):
+	def genAllGreenSwir(self, green, swir, kwargs):
 		self.mndwi(self.green, self.swir, self.kwargs)
 
 	# Create all indices that use the RED, NIR and the SWIR bands
@@ -179,10 +179,6 @@ class QuickIndex(object):
 	def genAllNirSwir(self, nir, swir, kwargs):
 		self.ndwi2(self.nir, self.swir, self.kwargs)
 
-	# Create all indices that use the GREEN, RED, NIR and the SWIR bands
-	# def genAllGreenRedNirSwir(self, green, red, nir, swir):
-	# 	pass
-
 	def __init__(self, indices = None, green = None, red = None, nir = None, swir = None):
 		
 		self.green_filepath = green
@@ -191,21 +187,20 @@ class QuickIndex(object):
 		self.swir_filepath = swir
 
 		if green is not None and red is not None and nir is not None and swir is not None:
-		 	with rasterio.open(green_filepath) as src_green:
+			with rasterio.open(green) as src_green:
 				self.green = src_green.read(1)
-			with rasterio.open(red_filepath) as src_red:
+			with rasterio.open(red) as src_red:
 				self.red = src_red.read(1)
-			with rasterio.open(nir_filepath) as src_nir:
+			with rasterio.open(nir) as src_nir:
 				self.nir = src_nir.read(1)
-			with rasterio.open(swir_filepath) as src_swir:
+			with rasterio.open(swir) as src_swir:
 				self.swir = src_swir.read(1)
 			self.kwargs = src_red.meta
 			self.kwargs.update(
-	    		dtype=rasterio.float32,
-	    		count = 1)
-
-	    	if indices == None:
-	    		self.getAllRedNir(self.red, self.nir, self.kwargs)
+			dtype=rasterio.float32,
+				count = 1)
+			if indices == None:
+				self.getAllRedNir(self.red, self.nir, self.kwargs)
 				self.getAllRedNirSwir(self.red, self.nir, self.swir, self.kwargs)
 				self.genAllGreenNir(self.green, self.nir, self.kwargs)
 				self.genAllGreenSwir(self.green, self.swir, self.kwargs)
@@ -213,16 +208,16 @@ class QuickIndex(object):
 				print "Error"
 
 		elif red is not None and nir is not None and swir is not None:
-			with rasterio.open(red_filepath) as src_red:
+			with rasterio.open(red) as src_red:
 				self.red = src_red.read(1)
-			with rasterio.open(nir_filepath) as src_nir:
+			with rasterio.open(nir) as src_nir:
 				self.nir = src_nir.read(1)
-			with rasterio.open(swir_filepath) as src_swir:
+			with rasterio.open(swir) as src_swir:
 				self.swir = src_swir.read(1)
 			self.kwargs = src_red.meta
 			self.kwargs.update(
-	    		dtype=rasterio.float32,
-	    		count = 1)		
+				dtype=rasterio.float32,
+				count = 1)
 
 			# Check if any specific index was requested
 			# otherwise, it will generate all possible indexes
@@ -237,14 +232,14 @@ class QuickIndex(object):
 						print "Error: Index [" + idx + "] doesnt exist"
 
 		elif green is not None and nir is not None:
-			with rasterio.open(green_filepath) as src_green:
+			with rasterio.open(green) as src_green:
 				self.green = src_green.read(1)
-			with rasterio.open(nir_filepath) as src_nir:
+			with rasterio.open(nir) as src_nir:
 				self.nir = src_nir.read(1)
-			self.kwargs = src_green.meta
+			self.kwargs = src_nir.meta
 			self.kwargs.update(
-	    		dtype=rasterio.float32,
-	    		count = 1)
+				dtype=rasterio.float32,
+				count = 1)
 
 			# Check if any specific index was requested
 			# otherwise, it will generate all possible indexes
@@ -261,14 +256,14 @@ class QuickIndex(object):
 
 
 		elif green is not None and swir is not None:
-			with rasterio.open(green_filepath) as src_green:
+			with rasterio.open(green) as src_green:
 				self.green = src_green.read(1)
-			with rasterio.open(swir_filepath) as src_swir:
+			with rasterio.open(swir) as src_swir:
 				self.swir = src_swir.read(1)
 			self.kwargs = src_green.meta
 			self.kwargs.update(
-	    		dtype=rasterio.float32,
-	    		count = 1)
+				dtype=rasterio.float32,
+				count = 1)
 
 			# Check if any specific index was requested
 			# otherwise, it will generate all possible indexes			
@@ -289,8 +284,8 @@ class QuickIndex(object):
 					self.nir = src_nir.read(1)
 			self.kwargs = src_red.meta
 			self.kwargs.update(
-	    		dtype=rasterio.float32,
-	    		count = 1)
+				dtype=rasterio.float32,
+				count = 1)
 
 			# Check if any specific index was requested
 			# otherwise, it will generate all possible indexes
@@ -331,16 +326,34 @@ class QuickIndex(object):
 						print print_one + print_two
 
 		elif nir is not None and swir is not None:
-			with rasterio.open(nir_filepath) as src_nir:
+			with rasterio.open(nir) as src_nir:
 				nir = src_nir.read(1)
-			with rasterio.open(swir_filepath) as src_swir:
+			with rasterio.open(swir) as src_swir:
 				swir = src_swir.read(1)
-				# TODO 
+				self.kwargs = src_red.meta
+				self.kwargs.update(
+					dtype=rasterio.float32,
+					count = 1)
+			if indices == None:
+				self.genAllNirSwir(self.nir, self.swir, self.kwargs)
+			else:
+				for idx in indices:
+					if idx == 'ndwi2':
+						self.ndwi2(self.nir, self.swir, self.kwargs)
+					else:
+						print "Error: Index [" + idx + "] cant be created"
 		else:
-			pass
+			print "Invalid arguments"
 
-
+# UNIX
+# green_file = '/home/eduardo/Documents/images/LT05_L1TP_217076_20110813_20161007_01_T1_B2.TIF'
 # red_file = '/home/eduardo/Documents/images/LT05_L1TP_217076_20110813_20161007_01_T1_B3.TIF'
 # nir_file = '/home/eduardo/Documents/images/LT05_L1TP_217076_20110813_20161007_01_T1_B4.TIF'
-# idx = ["gemi"]
-# QuickIndex(idx, red = red_file, nir = nir_file)
+
+# WIN
+green_file = 'C:\\Users\\eduardo\\Documents\\LT05_L1TP_217076_20110813_20161007_01_T1_B2.TIF'
+# red_file = 'C:\\Users\\eduardo\\Documents\\LT05_L1TP_217076_20110813_20161007_01_T1_B3.TIF'
+nir_file = 'C:\\Users\\eduardo\\Documents\\LT05_L1TP_217076_20110813_20161007_01_T1_B4.TIF'
+
+idx = ["gndvi"]
+QuickIndex(idx, green = green_file, nir = nir_file)
