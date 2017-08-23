@@ -1,7 +1,7 @@
 ################################# [ quickIndex.py ] ################################
 #	Author: Eduardo (sacridini) Lacerda
 #	e-mail: eduardolacerdageo@gmail.com
-#	Version: 0.1.7.1
+#	Version: 0.1.7.2
 #
 #	Calculate multispectral indices such as NDVI, SAVI, TVI, etc.
 #	Dependencies: numpy, gdal and rasterio
@@ -179,6 +179,7 @@ class QuickIndex(object):
 	def genAllNirSwir(self, nir, swir, kwargs):
 		self.ndwi2(self.nir, self.swir, self.kwargs)
 
+	# Constructor
 	def __init__(self, indices = None, green = None, red = None, nir = None, swir = None):
 		
 		self.green_filepath = green
@@ -343,7 +344,8 @@ class QuickIndex(object):
 					else:
 						print "Error: Index [" + idx + "] cant be created"
 		else:
-			print "Invalid arguments"
+			print "------------- [ Welcome to QuickIndex ] -------------"
+			print
 
 # UNIX
 # green_file = '/home/eduardo/Documents/images/LT05_L1TP_217076_20110813_20161007_01_T1_B2.TIF'
